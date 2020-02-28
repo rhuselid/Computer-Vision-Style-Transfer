@@ -17,11 +17,24 @@ import math
 vgg19 = models.vgg19(pretrained=True)
 # pretrained object detection deep CNN to use for feature extraction
 
-def loss_fn():
-	'''
-	content and style losses
-	'''
+def total_loss(content_loss, style_loss, alpha=0.5, beta=0.5):
+	return content_loss*alpha + style_loss*beta
+
+
+def style_loss(style_img: torch.Tensor, noise: torch.Tensor): 
+	"""
+	TODO: returns the style loss between a style image layer and its corresponding
+	noise layer
+	"""
 	pass
+
+def content_loss(content_img: torch.Tensor, noise: torch.Tensor):
+	"""
+	returns the content loss between the content image layer and corresponding
+	noise layer
+	"""
+	return torch.sum(torch.pow(content_img - noise, 2)) / 2
+
 
 def optimization():
 	'''
