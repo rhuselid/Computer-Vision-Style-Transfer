@@ -23,17 +23,19 @@ def total_loss(content_loss, style_loss, alpha=0.5, beta=0.5):
 
 def style_loss(style_img: torch.Tensor, noise: torch.Tensor): 
 	"""
-	TODO: returns the style loss between a style image layer and its corresponding
+	returns the style loss between a style image layer and its corresponding
 	noise layer
 	"""
-	pass
+	style_gram = torch.mm(style_img, style_image.t())
+	noise_gram = torch.mm(noise, noise.t())
+	return torch.sum(torch.pow(noise_gram - style_gram, 2)).div(4*(np.power(noise.shape[0]*noise.shape[1], 2)))
 
 def content_loss(content_img: torch.Tensor, noise: torch.Tensor):
 	"""
 	returns the content loss between the content image layer and corresponding
 	noise layer
 	"""
-	return torch.sum(torch.pow(content_img - noise, 2)) / 2
+	return torch.sum(torch.pow(content_img - noise, 2)).div(2)
 
 
 def optimization():
