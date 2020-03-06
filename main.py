@@ -15,6 +15,7 @@ import math
 
 from PIL import Image
 import matplotlib.pyplot as plt
+from scipy.misc import imsave
 
 
 
@@ -156,13 +157,16 @@ def generate_output(content_image, style_image):
 	content_activation = gather_features(content_image, style=False)
 	style_activations = gather_features(style_image, style=True)
 	
-	iterations = 100
+	iterations = 1500
 	current_learn_rate = 0.1
 
 	for iter_num in range(iterations):
 		#current_learn_rate = max(1e-1, start_lr*(0.95**iter_num))
-		if iter_num > 50:
+		if iter_num > 200:
 			current_learn_rate = max(current_learn_rate*0.95, 0.01)
+
+		# if iter_num > 100:
+		# 	current_learn_rate = max(current_learn_rate*0.95, 0.001)
 
 		optimizer = create_optimizer([noise], current_learn_rate)
 
@@ -174,7 +178,14 @@ def generate_output(content_image, style_image):
 
 		current_content_loss = content_loss(content_activation, noise_content_activation)
 		current_style_loss = style_loss(style_activations, noise_style_activations)
-		current_total_loss = total_loss(current_content_loss, current_style_loss, alpha=0.5, beta=0.5)
+
+		# style_loss_num = current_style_loss.item()
+		# content_loss_num = current_content_loss.item()
+
+		# content_ratio = content_loss_num / (content_loss_num + style_loss_num) # ratio of content loss to all
+		# style_ratio = 1 - content_loss_num
+
+		current_total_loss = total_loss(current_content_loss, current_style_loss, alpha=0.01, beta=0.99)
 
 		current_total_loss.backward()
 		optimizer.step()
@@ -184,6 +195,12 @@ def generate_output(content_image, style_image):
 			print('Style Loss:   ', int(current_style_loss.item()))
 			print('Content Loss: ', int(current_content_loss.item()))
 			print()
+
+			current_out = noise.detach().numpy()[0,:,:,:]
+			current_out = np.moveaxis(current_out, 0, -1)
+			imsave('last_output.png', current_out)
+
+
 
 	print('Output Tensor')
 	print(noise)
